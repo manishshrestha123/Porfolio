@@ -1,0 +1,20 @@
+name: Docker build
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify Dockerfile at repo root
+        run: |
+          test -f Dockerfile || (echo "::error::Dockerfile missing at repository root — commit and push it." && exit 1)
+          wc -c Dockerfile
+
+      - name: Docker build (same as Railway with root = repo)
+        run: docker build -t portfolio-api:test .
