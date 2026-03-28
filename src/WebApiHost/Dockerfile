@@ -1,33 +1,26 @@
-# See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
-
-# This stage is used when running from VS in fast mode (Default for Debug configuration)
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-USER $APP_UID
+# Stage 1: Build
+FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /app
+
+# Copy the solution and project files
+COPY *.sln ./
+COPY Porfolio.API/*.csproj ./Porfolio.API/
+COPY Infrastructure/*.csproj ./Infrastructure/
+COPY Domain/*.csproj ./Domain/
+
+# Restore dependencies
+RUN dotnet restore
+
+# Copy everything else
+COPY . ./
+
+# Publish
+RUN dotnet publish Porfolio.API/Porfolio.API.csproj -c Release -o out
+
+# Stage 2: Runtime
+FROM mcr.microsoft.com/dotnet/aspnet:7.0
+WORKDIR /app
+COPY --from=build /app/out .
+
 EXPOSE 8080
-EXPOSE 8081
-
-
-# This stage is used to build the service project
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-ARG BUILD_CONFIGURATION=Release
-WORKDIR /src
-COPY ["src/WebApiHost/WebApiHost.csproj", "src/WebApiHost/"]
-COPY ["src/Application/Application.csproj", "src/Application/"]
-COPY ["src/Domain/Domain.csproj", "src/Domain/"]
-COPY ["src/Infrastructure/Infrastructure.csproj", "src/Infrastructure/"]
-RUN dotnet restore "./src/WebApiHost/WebApiHost.csproj"
-COPY . .
-WORKDIR "/src/src/WebApiHost"
-RUN dotnet build "./WebApiHost.csproj" -c $BUILD_CONFIGURATION -o /app/build
-
-# This stage is used to publish the service project to be copied to the final stage
-FROM build AS publish
-ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./WebApiHost.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
-
-# This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
-FROM base AS final
-WORKDIR /app
-COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "WebApiHost.dll"]
+ENTRYPOINT ["dotnet", "Porfolio.API.dll"]
