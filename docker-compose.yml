@@ -1,0 +1,12 @@
+# Local smoke test — build context must be repo root (where this file lives):
+#   docker compose build
+#   docker compose up
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production

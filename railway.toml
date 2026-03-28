@@ -1,0 +1,4 @@
+# Railway: keep "Root Directory" empty (repo root) so Porfolio.sln + src/ are in the build context.
+[build]
+builder = "dockerfile"
+dockerfilePath = "Dockerfile"
