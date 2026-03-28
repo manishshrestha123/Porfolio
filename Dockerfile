@@ -1,5 +1,8 @@
-# Build context must be the solution root (Portfolio folder), not this folder:
-#   docker build -f src/WebApiHost/Dockerfile .
+# Build from repository root (where Porfolio.sln lives):
+#   docker build .
+#
+# In Railway / Render / etc.: set "Root Directory" to the repo root (leave empty or "."),
+# not src/WebApiHost.
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src

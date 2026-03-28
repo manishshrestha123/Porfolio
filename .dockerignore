@@ -1,7 +1,7 @@
-**/.git
-**/.vs
-**/bin
-**/obj
+.git
+.vs
+**/bin/
+**/obj/
 **/*.user
-**/node_modules
-**/.angular
+node_modules
+.angular
